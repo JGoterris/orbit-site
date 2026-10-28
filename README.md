@@ -12,6 +12,10 @@ bun run build    # type-check and build into dist/
 bun run preview  # serve the build
 ```
 
+The docs are not fetched at runtime: `bun run dev` and `bun run build` first copy the markdown from the orbit
+repository into `src/docs` (`scripts/fetch-docs.ts`). It uses a sibling `../orbit` checkout when there is one, a
+shallow clone from GitHub otherwise (always on CI), or the folder in `DOCS_DIR`.
+
 ## License
 
 MIT

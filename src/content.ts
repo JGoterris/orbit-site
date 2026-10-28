@@ -48,3 +48,27 @@ export const FEATURES = [
     d: 'Multi-repo fetch / pull / push, and lazygit one key away.',
   },
 ]
+
+export type DocNavItem = { section: string } | { label: string; path: string }
+
+export const DOCNAV: DocNavItem[] = [
+  { label: 'Home', path: 'README.md' },
+  { label: 'Features', path: 'features.md' },
+  { label: 'Usage', path: 'usage.md' },
+  { label: 'Keys', path: 'keys.md' },
+  { label: 'Configuration', path: 'configuration.md' },
+  { label: 'Git', path: 'git.md' },
+  { section: 'Plugins' },
+  { label: 'Using plugins', path: 'plugins/index.md' },
+  { label: 'Writing a plugin', path: 'plugins/authoring.md' },
+  { label: 'Manifest', path: 'plugins/manifest.md' },
+  { label: 'Widgets', path: 'plugins/widgets.md' },
+  { label: 'Protocol', path: 'plugins/protocol.md' },
+  { label: 'Community', path: 'plugins/community.md' },
+  { section: 'More' },
+  { label: 'Themes', path: 'themes.md' },
+  { label: 'Scripting & editors', path: 'scripting.md' },
+  { label: 'AI agents', path: 'agents.md' },
+  { label: 'Platforms', path: 'platforms.md' },
+  { label: 'Upgrading from 0.x', path: 'upgrading.md' },
+]

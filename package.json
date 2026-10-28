@@ -4,7 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "docs": "bun scripts/fetch-docs.ts",
+    "predev": "bun run docs",
     "dev": "vite",
+    "prebuild": "bun run docs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

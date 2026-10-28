@@ -103,3 +103,7 @@ a:hover {
   background: #1a2232;
   border-color: #7aa2f7;
 }
+
+.doc-link:hover {
+  color: #e2e8f0 !important;
+}
