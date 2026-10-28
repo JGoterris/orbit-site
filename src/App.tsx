@@ -3,6 +3,8 @@ import Footer from './components/Footer'
 import Header from './components/Header'
 import Docs from './pages/Docs'
 import Home from './pages/Home'
+import PluginDetail from './pages/PluginDetail'
+import Plugins from './pages/Plugins'
 import { fx } from './lib/motion'
 import { useRoute } from './lib/router'
 
@@ -60,10 +62,10 @@ export default function App() {
         <Home />
       ) : route.view === 'docs' ? (
         <Docs doc={route.doc} />
+      ) : route.plugin ? (
+        <PluginDetail full={route.plugin} />
       ) : (
-        <main data-page style={{ flex: 1, maxWidth: 1160, width: '100%', margin: '0 auto', padding: 24 }}>
-          {route.view}
-        </main>
+        <Plugins />
       )}
       <Footer />
     </div>

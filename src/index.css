@@ -133,3 +133,20 @@ a:hover {
     background: #3b4261;
   }
 }
+
+.search-box:focus-within {
+  border-color: #a78bfa !important;
+}
+
+.plugin-card {
+  transition:
+    border-color 0.25s,
+    transform 0.25s,
+    box-shadow 0.25s;
+}
+
+.plugin-card:hover {
+  border-color: #a78bfa !important;
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px -20px #a78bfa88;
+}

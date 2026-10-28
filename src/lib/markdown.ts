@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import { marked } from 'marked'
 import { joinPath } from './router'
 
@@ -25,6 +26,12 @@ const DOCSTYLE: Record<string, string> = {
 
 export function renderMarkdown(md: string) {
   return marked.parse(md, { async: false })
+}
+
+// Plugin READMEs come from third parties, so the HTML is cleaned before it reaches the page.
+// Inline styles go too, so a README cannot lay itself over the rest of the site.
+export function renderUntrusted(md: string) {
+  return DOMPurify.sanitize(renderMarkdown(md), { FORBID_TAGS: ['style'], FORBID_ATTR: ['style'] })
 }
 
 // The docs were written for MkDocs, whose `!!! type "Title"` admonitions marked does not know.
@@ -84,6 +91,28 @@ export function styleDoc(el: HTMLElement, path: string) {
   el.querySelectorAll('img').forEach((i) => {
     const s = i.getAttribute('src') ?? ''
     if (!/^https?:/.test(s)) i.src = `${RAW}docs/${joinPath(dir, s)}`
+  })
+}
+
+// Same look for a plugin README; its relative links and images point into the plugin's repository.
+export function styleRepo(el: HTMLElement, full: string, branch: string) {
+  styleTags(el)
+  el.querySelectorAll('h1').forEach((n, i) => {
+    if (i === 0) n.style.display = 'none'
+  })
+  el.querySelectorAll('a').forEach((a) => {
+    const h = a.getAttribute('href') ?? ''
+    if (h.startsWith('#')) {
+      a.removeAttribute('href')
+      return
+    }
+    a.target = '_blank'
+    a.rel = 'noreferrer'
+    if (!/^https?:/.test(h)) a.href = `https://github.com/${full}/blob/${branch}/${h.replace(/^\.\//, '')}`
+  })
+  el.querySelectorAll('img').forEach((i) => {
+    const s = i.getAttribute('src') ?? ''
+    if (!/^https?:/.test(s)) i.src = `https://raw.githubusercontent.com/${full}/${branch}/${s.replace(/^\.\//, '')}`
   })
 }
 

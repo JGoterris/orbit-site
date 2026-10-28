@@ -44,6 +44,8 @@ export function useReveal() {
         )
         if (!a) return
         a.pause()
+        // the end state is the natural one; dropping the animation lets CSS hover transforms through
+        a.finished.then(() => a.cancel(), () => {})
         anims.current.set(el, a)
       }
       if (anims.current.get(el)?.playState === 'paused') io.current?.observe(el)
