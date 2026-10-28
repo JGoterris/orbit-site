@@ -3,25 +3,27 @@ import Footer from './components/Footer'
 import Header from './components/Header'
 import Docs from './pages/Docs'
 import Home from './pages/Home'
+import NotFound from './pages/NotFound'
 import PluginDetail from './pages/PluginDetail'
 import Plugins from './pages/Plugins'
 import { fx } from './lib/motion'
-import { useRoute } from './lib/router'
+import { navigate, useLinkNavigation, useRoute } from './lib/router'
 
-const SHORTCUTS: Record<string, string> = { '1': '#/', '2': '#/docs/README.md', '3': '#/plugins' }
+const SHORTCUTS: Record<string, string> = { '1': '/', '2': '/docs/', '3': '/plugins/' }
 
 export default function App() {
   const route = useRoute()
   const pageKey = useRef<string | null>(null)
+  useLinkNavigation()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
       const t = e.target as HTMLElement | null
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.closest('[data-terminal]'))) return
-      const href = SHORTCUTS[e.key]
-      if (href) {
-        location.hash = href
+      const to = SHORTCUTS[e.key]
+      if (to) {
+        navigate(to)
         e.preventDefault()
       }
     }
@@ -62,10 +64,14 @@ export default function App() {
         <Home />
       ) : route.view === 'docs' ? (
         <Docs doc={route.doc} />
-      ) : route.plugin ? (
-        <PluginDetail full={route.plugin} />
+      ) : route.view === 'plugins' ? (
+        route.plugin ? (
+          <PluginDetail full={route.plugin} />
+        ) : (
+          <Plugins />
+        )
       ) : (
-        <Plugins />
+        <NotFound />
       )}
       <Footer />
     </div>

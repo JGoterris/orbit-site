@@ -3,6 +3,7 @@ import { DOCNAV } from '../content'
 import { REPO } from '../lib/github'
 import { fetchDoc, scrollToAnchor, styleDoc } from '../lib/markdown'
 import { fx } from '../lib/motion'
+import { docUrl } from '../lib/router'
 import { useMobile } from '../lib/useMobile'
 
 const mono = { fontFamily: "'Geist Mono', monospace" }
@@ -117,7 +118,7 @@ export default function Docs({ doc }: { doc: string }) {
             <a
               key={d.path}
               className="doc-link"
-              href={`#/docs/${d.path}`}
+              href={docUrl(d.path)}
               style={{
                 display: 'block',
                 padding: mobile ? '10px 12px' : '6px 10px',

@@ -77,7 +77,7 @@ export default function PluginDetail({ full }: { full: string }) {
         gap: 28,
       }}
     >
-      <a href="#/plugins" style={{ ...mono, fontSize: 13, color: '#94a3b8' }}>
+      <a href="/plugins/" style={{ ...mono, fontSize: 13, color: '#94a3b8' }}>
         ← All plugins
       </a>
       {!valid ? (

@@ -21,7 +21,7 @@ export default function Footer() {
           color: '#64748b',
         }}
       >
-        <img src="./logo.svg" alt="" style={{ width: 20, height: 20, borderRadius: 5 }} />
+        <img src="/logo.svg" alt="" style={{ width: 20, height: 20, borderRadius: 5 }} />
         <span style={{ fontFamily: "'Geist Mono', monospace" }}>
           © {YEAR}{' '}
           <a className="foot-link" href="https://jgoterris.com" target="_blank" rel="noreferrer">
@@ -30,10 +30,10 @@ export default function Footer() {
           · orbit · MIT License
         </span>
         <span style={{ flex: 1, display: mobile ? 'none' : 'inline' }} />
-        <a className="foot-link" href="#/docs/README.md">
+        <a className="foot-link" href="/docs/">
           Docs
         </a>
-        <a className="foot-link" href="#/plugins">
+        <a className="foot-link" href="/plugins/">
           Plugins
         </a>
         <a className="foot-link" href={`https://github.com/${REPO}`} target="_blank" rel="noreferrer">

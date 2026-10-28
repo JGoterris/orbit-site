@@ -5,9 +5,9 @@ import type { Route } from '../lib/router'
 import NavLogo from './NavLogo'
 
 const ITEMS = [
-  { key: '1', label: 'home', href: '#/', view: 'home' },
-  { key: '2', label: 'docs', href: '#/docs/README.md', view: 'docs' },
-  { key: '3', label: 'plugins', href: '#/plugins', view: 'plugins' },
+  { key: '1', label: 'home', href: '/', view: 'home' },
+  { key: '2', label: 'docs', href: '/docs/', view: 'docs' },
+  { key: '3', label: 'plugins', href: '/plugins/', view: 'plugins' },
 ] as const
 
 const maskBorder: CSSProperties = {
@@ -80,7 +80,7 @@ export default function Header({ route }: { route: Route }) {
             flexWrap: 'wrap',
           }}
         >
-          <a href="#/" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0' }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0' }}>
             <span style={{ width: 34, height: 34, display: 'block' }}>
               <NavLogo />
             </span>

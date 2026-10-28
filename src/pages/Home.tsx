@@ -191,7 +191,7 @@ function Features() {
         <h2 data-reveal="up" style={h2}>
           Features
         </h2>
-        <a href="#/docs/features.md" style={{ fontSize: 14 }}>
+        <a href="/docs/features/" style={{ fontSize: 14 }}>
           All the features →
         </a>
       </div>
@@ -280,7 +280,7 @@ function QuickStart() {
           ))}
         </div>
         <div style={{ marginTop: 8, fontSize: 14 }}>
-          <a href="#/docs/configuration.md">Configuration reference →</a>
+          <a href="/docs/configuration/">Configuration reference →</a>
         </div>
       </div>
       <div
@@ -329,7 +329,7 @@ function Agents() {
           Coding agents (Claude Code, Codex, Cursor…) can drive orbit through its CLI: start the services they need,
           restart them and read the logs. They share the daemon with your TUI, so you see everything they do.
         </p>
-        <a href="#/docs/agents.md" style={{ fontSize: 14 }}>
+        <a href="/docs/agents/" style={{ fontSize: 14 }}>
           AI agents →
         </a>
       </div>

@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
-import { joinPath } from './router'
+import { docUrl, joinPath } from './router'
 
 export const RAW = 'https://raw.githubusercontent.com/JGoterris/orbit/main/'
 
@@ -77,7 +77,7 @@ export function styleDoc(el: HTMLElement, path: string) {
   el.querySelectorAll('a').forEach((a) => {
     const h = a.getAttribute('href') ?? ''
     const gh = h.match(/github\.com\/JGoterris\/orbit\/blob\/main\/docs\/([^#]+\.md)/)
-    if (gh) a.setAttribute('href', '#/docs/' + gh[1])
+    if (gh) a.setAttribute('href', docUrl(gh[1]))
     else if (/^https?:/.test(h)) {
       a.target = '_blank'
       a.rel = 'noreferrer'
@@ -85,7 +85,7 @@ export function styleDoc(el: HTMLElement, path: string) {
       a.dataset.anchor = h.slice(1)
       a.removeAttribute('href')
       a.style.cursor = 'default'
-    } else if (/\.md(#.*)?$/.test(h)) a.setAttribute('href', '#/docs/' + joinPath(dir, h.replace(/#.*$/, '')))
+    } else if (/\.md(#.*)?$/.test(h)) a.setAttribute('href', docUrl(joinPath(dir, h.replace(/#.*$/, ''))))
     else a.setAttribute('href', `https://github.com/JGoterris/orbit/blob/main/docs/${joinPath(dir, h)}`)
   })
   el.querySelectorAll('img').forEach((i) => {

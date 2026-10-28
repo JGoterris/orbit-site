@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import Pill from '../components/Pill'
+import { navigate } from '../lib/router'
 import { pluginName, searchPlugins, type PluginSearch, type Sort } from '../lib/github'
 import { useCopy } from '../lib/useCopy'
 import { useMobile } from '../lib/useMobile'
@@ -122,7 +123,7 @@ export default function Plugins() {
             key={p.full}
             className="plugin-card"
             data-reveal="up"
-            onClick={() => (location.hash = `#/plugins/${p.full}`)}
+            onClick={() => navigate(`/plugins/${p.full}/`)}
             style={{
               cursor: 'pointer',
               border: '1px solid #1e2836',
@@ -197,7 +198,7 @@ export default function Plugins() {
           </div>
         </div>
         <a
-          href="#/docs/plugins/authoring.md"
+          href="/docs/plugins/authoring/"
           style={{
             ...mono,
             fontSize: 13,
