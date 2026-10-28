@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify'
-import { marked } from 'marked'
-import { docUrl, joinPath } from './router'
+import { renderDoc, renderMarkdown, resolveDocHref } from './render'
+import { joinPath } from './router'
 
 export const RAW = 'https://raw.githubusercontent.com/JGoterris/orbit/main/'
 
@@ -24,30 +24,10 @@ const DOCSTYLE: Record<string, string> = {
   hr: 'border:none;border-top:1px solid #1a2230;margin:32px 0',
 }
 
-export function renderMarkdown(md: string) {
-  return marked.parse(md, { async: false })
-}
-
 // Plugin READMEs come from third parties, so the HTML is cleaned before it reaches the page.
 // Inline styles go too, so a README cannot lay itself over the rest of the site.
 export function renderUntrusted(md: string) {
   return DOMPurify.sanitize(renderMarkdown(md), { FORBID_TAGS: ['style'], FORBID_ATTR: ['style'] })
-}
-
-// The docs were written for MkDocs, whose `!!! type "Title"` admonitions marked does not know.
-function admonitions(md: string) {
-  return md
-    .replace(
-      /^!!! *(\w+) *"([^"]*)"\s*\n((?:(?: {4}.*)?\n?)*)/gm,
-      (_, _type: string, title: string, body: string) =>
-        `> **${title}**\n>\n` +
-        body
-          .split('\n')
-          .map((l) => '> ' + l.replace(/^ {4}/, ''))
-          .join('\n') +
-        '\n\n',
-    )
-    .replace(/^!!! *(\w+) *"([^"]*)" +(.+)$/gm, (_, _type: string, title: string, body: string) => `> **${title}** ${body}\n`)
 }
 
 // src/docs is filled by scripts/fetch-docs.ts; each page becomes its own small chunk.
@@ -56,7 +36,7 @@ const docs = import.meta.glob<string>('../docs/**/*.md', { query: '?raw', import
 export async function fetchDoc(path: string) {
   const load = docs[`../docs/${path}`]
   if (!load) throw new Error(`docs/${path} not found`)
-  return renderMarkdown(admonitions(await load()))
+  return renderDoc(await load())
 }
 
 function styleTags(el: HTMLElement) {
@@ -75,18 +55,18 @@ export function styleDoc(el: HTMLElement, path: string) {
   const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/') + 1) : ''
   styleTags(el)
   el.querySelectorAll('a').forEach((a) => {
-    const h = a.getAttribute('href') ?? ''
-    const gh = h.match(/github\.com\/JGoterris\/orbit\/blob\/main\/docs\/([^#]+\.md)/)
-    if (gh) a.setAttribute('href', docUrl(gh[1]))
-    else if (/^https?:/.test(h)) {
-      a.target = '_blank'
-      a.rel = 'noreferrer'
-    } else if (h.startsWith('#')) {
-      a.dataset.anchor = h.slice(1)
+    const link = resolveDocHref(a.getAttribute('href') ?? '', dir)
+    if ('anchor' in link) {
+      a.dataset.anchor = link.anchor
       a.removeAttribute('href')
       a.style.cursor = 'default'
-    } else if (/\.md(#.*)?$/.test(h)) a.setAttribute('href', docUrl(joinPath(dir, h.replace(/#.*$/, ''))))
-    else a.setAttribute('href', `https://github.com/JGoterris/orbit/blob/main/docs/${joinPath(dir, h)}`)
+      return
+    }
+    a.setAttribute('href', link.href)
+    if (link.external) {
+      a.target = '_blank'
+      a.rel = 'noreferrer'
+    }
   })
   el.querySelectorAll('img').forEach((i) => {
     const s = i.getAttribute('src') ?? ''
