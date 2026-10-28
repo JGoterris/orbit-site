@@ -107,3 +107,29 @@ a:hover {
 .doc-link:hover {
   color: #e2e8f0 !important;
 }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2f3450 transparent;
+}
+
+/* Safari before it understands scrollbar-color */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2f3450;
+    border-radius: 99px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3b4261;
+  }
+}
