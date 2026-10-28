@@ -1,21 +1,26 @@
 # orbit-site
 
-Website for [orbit](https://github.com/JGoterris/orbit): landing page with an interactive demo of the TUI,
-the documentation (read from the orbit repository) and the community plugins.
+The website of [orbit](https://github.com/JGoterris/orbit), a terminal UI to launch, control and monitor your local
+services.
 
-Built with Vite, React and TypeScript, managed with [bun](https://bun.sh).
+It has a landing page with a simulated demo of the TUI, the documentation (taken from the orbit repository) and a list
+of community plugins.
+
+## Built with
+
+[Vite](https://vite.dev), [React](https://react.dev) and TypeScript, using [bun](https://bun.sh) to install and run
+everything.
+
+## Development
 
 ```sh
 bun install
-bun run dev      # http://localhost:5173
-bun run build    # type-check and build into dist/
-bun run preview  # serve the build
+bun run dev
 ```
 
-The docs are not fetched at runtime: `bun run dev` and `bun run build` first copy the markdown from the orbit
-repository into `src/docs` (`scripts/fetch-docs.ts`). It uses a sibling `../orbit` checkout when there is one, a
-shallow clone from GitHub otherwise (always on CI), or the folder in `DOCS_DIR`.
+The site is then at <http://localhost:5173>. `bun run build` makes a production build in `dist/`, `bun run preview`
+serves it and `bun run lint` checks the code.
 
 ## License
 
-MIT
+[MIT](LICENSE)
