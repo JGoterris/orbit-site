@@ -1,4 +1,8 @@
+import { useHead } from '../lib/useHead'
+
 export default function NotFound() {
+  useHead({ title: 'Page not found · orbit', description: 'This page does not exist.', path: location.pathname, noindex: true })
+
   return (
     <main
       data-page

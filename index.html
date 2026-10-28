@@ -3,12 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>orbit</title>
-    <meta
-      name="description"
-      content="TUI to launch, control and monitor local services respecting their dependencies"
-    />
+    <title>%SITE_TITLE%</title>
+    <meta name="description" content="%SITE_DESCRIPTION%" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0b0f17" />
+    <link rel="canonical" href="%SITE_URL%/" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="orbit" />
+    <meta property="og:title" content="%SITE_TITLE%" />
+    <meta property="og:description" content="%SITE_DESCRIPTION%" />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/og.png" />
+    <meta property="og:image:width" content="2560" />
+    <meta property="og:image:height" content="1280" />
+    <meta
+      property="og:image:alt"
+      content="The orbit logo next to a terminal showing its dashboard with seven healthy services and their logs"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="%SITE_TITLE%" />
+    <meta name="twitter:description" content="%SITE_DESCRIPTION%" />
+    <meta name="twitter:image" content="%SITE_URL%/og.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "orbit",
+        "description": "%SITE_DESCRIPTION%",
+        "url": "%SITE_URL%/",
+        "image": "%SITE_URL%/og.png",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Linux, macOS, Windows",
+        "license": "https://opensource.org/licenses/MIT",
+        "sameAs": ["https://github.com/JGoterris/orbit"],
+        "author": { "@type": "Person", "name": "Jesús Goterris", "url": "https://jgoterris.com" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

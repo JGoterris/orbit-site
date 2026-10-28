@@ -8,7 +8,8 @@
     "predev": "bun run docs",
     "dev": "vite",
     "prebuild": "bun run docs",
-    "build": "tsc -b && vite build && cp dist/index.html dist/404.html",
+    "build": "tsc -b && vite build",
+    "postbuild": "bun scripts/postbuild.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },

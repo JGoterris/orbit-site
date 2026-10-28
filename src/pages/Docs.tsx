@@ -4,6 +4,8 @@ import { REPO } from '../lib/github'
 import { fetchDoc, scrollToAnchor, styleDoc } from '../lib/markdown'
 import { fx } from '../lib/motion'
 import { docUrl } from '../lib/router'
+import { docHead } from '../lib/seo'
+import { useHead } from '../lib/useHead'
 import { useMobile } from '../lib/useMobile'
 
 const mono = { fontFamily: "'Geist Mono', monospace" }
@@ -16,6 +18,7 @@ interface Loaded {
 
 export default function Docs({ doc }: { doc: string }) {
   const mobile = useMobile()
+  useHead(docHead(doc))
   const content = useRef<HTMLDivElement>(null)
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [navOpen, setNavOpen] = useState(false)

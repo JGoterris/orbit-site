@@ -3,6 +3,7 @@ import Pill from '../components/Pill'
 import { navigate } from '../lib/router'
 import { pluginName, searchPlugins, type PluginSearch, type Sort } from '../lib/github'
 import { useCopy } from '../lib/useCopy'
+import { useHead } from '../lib/useHead'
 import { useMobile } from '../lib/useMobile'
 import { useReveal } from '../lib/useReveal'
 
@@ -19,6 +20,11 @@ export default function Plugins() {
   const mobile = useMobile()
   const { copied, copy } = useCopy()
   useReveal()
+  useHead({
+    title: 'Community plugins · orbit',
+    description: 'Plugins for orbit, found live on GitHub: new tabs, columns, commands and service types.',
+    path: '/plugins/',
+  })
 
   const [query, setQuery] = useState('')
   const [q, setQ] = useState('')

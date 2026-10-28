@@ -4,7 +4,9 @@ import Demo from '../demo/Demo'
 import { FEATURES, INSTALL, type InstallTab } from '../content'
 import { useCopy } from '../lib/useCopy'
 import { useMobile } from '../lib/useMobile'
+import { useHead } from '../lib/useHead'
 import { useReveal } from '../lib/useReveal'
+import { SITE_DESCRIPTION, SITE_TITLE } from '../site'
 
 const mono: CSSProperties = { fontFamily: "'Geist Mono', monospace" }
 const prompt = <span style={{ color: '#64748b' }}>$ </span>
@@ -361,6 +363,7 @@ function Agents() {
 
 export default function Home() {
   useReveal()
+  useHead({ title: SITE_TITLE, description: SITE_DESCRIPTION, path: '/' })
 
   return (
     <main data-page style={{ flex: 1 }}>

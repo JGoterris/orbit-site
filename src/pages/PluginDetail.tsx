@@ -4,6 +4,7 @@ import { CURATED } from '../content'
 import { fetchPlugin, pluginName, type PluginDetail as Detail } from '../lib/github'
 import { renderUntrusted, styleRepo } from '../lib/markdown'
 import { useCopy } from '../lib/useCopy'
+import { useHead } from '../lib/useHead'
 import { useMobile } from '../lib/useMobile'
 import { useReveal } from '../lib/useReveal'
 
@@ -54,6 +55,12 @@ export default function PluginDetail({ full }: { full: string }) {
   const curated = CURATED.find((c) => c.full.toLowerCase() === full.toLowerCase())
   const desc = p?.desc || curated?.desc || ''
   const stage = p?.stage || curated?.stage
+  useHead({
+    title: `${pluginName(full)} · orbit plugin`,
+    description: desc || `The ${pluginName(full)} plugin for orbit.`,
+    path: `/plugins/${full}/`,
+    noindex: true,
+  })
   const install = `orbit plugin install ${full}`
   const facts = [
     ['Stars', p?.stars != null ? `★ ${p.stars}` : '—'],
