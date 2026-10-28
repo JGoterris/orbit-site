@@ -28,10 +28,12 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const key = JSON.stringify(route)
-    const first = pageKey.current === null
+    // moving between docs only swaps the article, which animates itself; the sidebar stays put
+    const key = route.view === 'docs' ? 'docs' : JSON.stringify(route)
+    const prev = pageKey.current
+    const first = prev === null
     pageKey.current = key
-    if (first) return
+    if (first || key === prev) return
     fx(
       document.querySelector('[data-page]'),
       [
