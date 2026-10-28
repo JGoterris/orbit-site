@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { DOCNAV } from '../content'
-import { REPO } from '../lib/github'
 import { fetchDoc, scrollToAnchor, styleDoc } from '../lib/markdown'
 import { fx } from '../lib/motion'
 import { docUrl } from '../lib/router'
@@ -138,14 +137,6 @@ export default function Docs({ doc }: { doc: string }) {
       <article style={{ flex: '1 1 480px', minWidth: 0, maxWidth: 780, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, ...mono, fontSize: 12, color: '#64748b' }}>
           <span>docs/{doc}</span>
-          <a
-            href={`https://github.com/${REPO}/blob/main/docs/${doc}`}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: '#94a3b8' }}
-          >
-            Edit on GitHub ↗
-          </a>
         </div>
         {loading && <div style={{ ...mono, color: '#94a3b8', padding: '40px 0' }}>◐ loading…</div>}
         {loaded?.error && !loading && <div style={{ ...mono, color: '#f87171', padding: '40px 0' }}>✖ {loaded.error}</div>}
