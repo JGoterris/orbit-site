@@ -5,9 +5,9 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
-  # the orbit docs are copied in at build time, so rebuild now and then to pick up their changes
-  schedule:
-    - cron: '23 5 * * *'
+  # orbit announces every final release; the docs of that release are copied in at build time
+  repository_dispatch:
+    types: [orbit-released]
 
 permissions:
   contents: read
@@ -24,8 +24,10 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       - run: bun install --frozen-lockfile
       - run: bun run lint
-      # type-checks, copies the docs from the orbit repository and builds into dist/
+      # type-checks, copies the docs of the latest orbit release and builds into dist/
       - run: bun run build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
