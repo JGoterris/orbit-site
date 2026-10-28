@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import HeroLogo from '../components/HeroLogo'
+import Demo from '../demo/Demo'
 import { FEATURES, INSTALL, type InstallTab } from '../content'
 import { useCopy } from '../lib/useCopy'
 import { useMobile } from '../lib/useMobile'
@@ -364,6 +365,7 @@ export default function Home() {
   return (
     <main data-page style={{ flex: 1 }}>
       <Hero />
+      <Demo />
       <Features />
       <QuickStart />
       <Agents />

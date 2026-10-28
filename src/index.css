@@ -66,3 +66,21 @@ a:hover {
 .feature-card:hover {
   background: #0e131d;
 }
+
+.demo-btn {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: #cbd5e1;
+  border: 1px solid #253043;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.demo-btn:hover {
+  border-color: #22d3ee;
+  color: #fff;
+}
