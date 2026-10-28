@@ -25,3 +25,19 @@ a:hover {
     transform: translate(-50%, -50%) rotate(360deg);
   }
 }
+
+.nav-link[data-active='false']:hover {
+  color: #e2e8f0 !important;
+}
+
+.star-link:hover {
+  border-color: #a78bfa !important;
+}
+
+.foot-link {
+  color: #94a3b8;
+}
+
+.foot-link:hover {
+  color: #e2e8f0;
+}

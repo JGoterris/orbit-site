@@ -1,3 +1,61 @@
+import { useEffect, useRef } from 'react'
+import Footer from './components/Footer'
+import Header from './components/Header'
+import { fx } from './lib/motion'
+import { useRoute } from './lib/router'
+
+const SHORTCUTS: Record<string, string> = { '1': '#/', '2': '#/docs/README.md', '3': '#/plugins' }
+
 export default function App() {
-  return <main>orbit</main>
+  const route = useRoute()
+  const pageKey = useRef<string | null>(null)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.closest('[data-terminal]'))) return
+      const href = SHORTCUTS[e.key]
+      if (href) {
+        location.hash = href
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  useEffect(() => {
+    const key = JSON.stringify(route)
+    const first = pageKey.current === null
+    pageKey.current = key
+    if (first) return
+    fx(
+      document.querySelector('[data-page]'),
+      [
+        { opacity: 0, transform: 'translateY(18px)', filter: 'blur(6px)' },
+        { opacity: 1, transform: 'none', filter: 'blur(0)' },
+      ],
+      550,
+    )
+    fx(
+      document.querySelector('[data-active="true"]'),
+      [
+        { transform: 'scale(.82)', filter: 'brightness(1.6)' },
+        { transform: 'scale(1.06)' },
+        { transform: 'scale(1)', filter: 'brightness(1)' },
+      ],
+      450,
+    )
+  }, [route])
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header route={route} />
+      <main data-page style={{ flex: 1, maxWidth: 1160, width: '100%', margin: '0 auto', padding: 24 }}>
+        {route.view}
+      </main>
+      <Footer />
+    </div>
+  )
 }
