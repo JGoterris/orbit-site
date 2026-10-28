@@ -1,0 +1,27 @@
+html,
+body {
+  margin: 0;
+  background: #0b0f17;
+  color: #e2e8f0;
+  font-family: 'Geist', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #22d3ee;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #a78bfa;
+}
+
+::selection {
+  background: #a78bfa55;
+}
+
+@keyframes orbitSpin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
