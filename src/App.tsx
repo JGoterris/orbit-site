@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Footer from './components/Footer'
 import Header from './components/Header'
+import Home from './pages/Home'
 import { fx } from './lib/motion'
 import { useRoute } from './lib/router'
 
@@ -52,9 +53,13 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header route={route} />
-      <main data-page style={{ flex: 1, maxWidth: 1160, width: '100%', margin: '0 auto', padding: 24 }}>
-        {route.view}
-      </main>
+      {route.view === 'home' ? (
+        <Home />
+      ) : (
+        <main data-page style={{ flex: 1, maxWidth: 1160, width: '100%', margin: '0 auto', padding: 24 }}>
+          {route.view}
+        </main>
+      )}
       <Footer />
     </div>
   )

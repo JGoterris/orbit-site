@@ -41,3 +41,28 @@ a:hover {
 .foot-link:hover {
   color: #e2e8f0;
 }
+
+.copy-btn {
+  all: unset;
+  cursor: pointer;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: #94a3b8;
+  border: 1px solid #253043;
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+
+.copy-btn:hover {
+  color: #e2e8f0;
+  border-color: #a78bfa;
+}
+
+.feature-card {
+  background: #0b0f17;
+  transition: background 0.3s;
+}
+
+.feature-card:hover {
+  background: #0e131d;
+}
