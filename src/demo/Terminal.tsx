@@ -2,9 +2,13 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { fx } from '../lib/motion'
 import { useMobile } from '../lib/useMobile'
 import Detail from './Detail'
+import Graph from './Graph'
+import GitView from './Git'
 import LogPane from './LogPane'
+import Pad from './Pad'
 import ServiceList from './ServiceList'
 import { SVCS, T, ready } from './data'
+import { useGit } from './git'
 import type { Sim, Snap } from './sim'
 
 const TABS = ['Dashboard', 'Graph', 'Logs', 'Git']
@@ -33,9 +37,10 @@ interface Props {
   sim: Sim
   sel: number
   onSelect: (i: number) => void
+  onCrash: () => void
 }
 
-export default function Terminal({ snap, sim, sel, onSelect }: Props) {
+export default function Terminal({ snap, sim, sel, onSelect, onCrash }: Props) {
   const mobile = useMobile()
   const root = useRef<HTMLDivElement>(null)
   const body = useRef<HTMLDivElement>(null)
@@ -44,6 +49,7 @@ export default function Terminal({ snap, sim, sel, onSelect }: Props) {
   const [allLogs, setAllLogs] = useState(false)
   const [help, setHelp] = useState(false)
   const [focused, setFocused] = useState(false)
+  const git = useGit()
 
   useEffect(() => {
     if (lastTab.current !== null) {
@@ -76,6 +82,13 @@ export default function Terminal({ snap, sim, sel, onSelect }: Props) {
     if (help && k !== '?') {
       setHelp(false)
       if (k === 'Escape') return true
+    }
+    if (tab === 4 && !help) {
+      if (k === 'j' || k === 'ArrowDown') git.move(1)
+      else if (k === 'k' || k === 'ArrowUp') git.move(-1)
+      else if (k === 'f' || k === 'p' || k === 'u') git.run(k)
+      else return false
+      return true
     }
     if (k === 'j' || k === 'ArrowDown') onSelect((sel + 1) % SVCS.length)
     else if (k === 'k' || k === 'ArrowUp') onSelect((sel + SVCS.length - 1) % SVCS.length)
@@ -112,122 +125,127 @@ export default function Terminal({ snap, sim, sel, onSelect }: Props) {
   const bodyHeight = mobile ? (tab === 1 ? 560 : tab === 4 ? 600 : 440) : 540
 
   return (
-    <div
-      ref={root}
-      tabIndex={0}
-      data-terminal
-      onKeyDown={onKeyDown}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      style={{
-        outline: 'none',
-        border: `1px solid ${border}`,
-        borderRadius: 14,
-        background: T.alt,
-        overflow: 'hidden',
-        fontFamily: "'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace",
-        fontVariantLigatures: 'none',
-        fontSize: mobile ? 10.5 : 13,
-        lineHeight: 1.5,
-        color: T.text,
-        boxShadow: '0 30px 80px -40px #7aa2f755',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: T.alt, borderBottom: `1px solid ${T.border}` }}>
-        {[0, 1, 2].map((i) => (
-          <span key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: '#3b4261' }} />
-        ))}
-      </div>
-      <div style={{ background: T.bg, padding: '6px 8px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', background: T.alt, padding: '1px 6px', whiteSpace: 'pre', overflow: 'hidden' }}>
-          <span style={{ color: T.accent, fontWeight: 600 }}>◉ orbit</span>
-          <span style={{ color: T.dim, display: desk }}> · </span>
-          <span style={{ display: desk }}>shop</span>
-          <span>{'  '}</span>
-          {TABS.map((label, i) => {
-            const on = tab === i + 1
-            return (
-              <span
-                key={label}
-                onClick={() => setTab(i + 1)}
+    <>
+      <div
+        ref={root}
+        tabIndex={0}
+        data-terminal
+        onKeyDown={onKeyDown}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          outline: 'none',
+          border: `1px solid ${border}`,
+          borderRadius: 14,
+          background: T.alt,
+          overflow: 'hidden',
+          fontFamily: "'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace",
+          fontVariantLigatures: 'none',
+          fontSize: mobile ? 10.5 : 13,
+          lineHeight: 1.5,
+          color: T.text,
+          boxShadow: '0 30px 80px -40px #7aa2f755',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: T.alt, borderBottom: `1px solid ${T.border}` }}>
+          {[0, 1, 2].map((i) => (
+            <span key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: '#3b4261' }} />
+          ))}
+        </div>
+        <div style={{ background: T.bg, padding: '6px 8px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: T.alt, padding: '1px 6px', whiteSpace: 'pre', overflow: 'hidden' }}>
+            <span style={{ color: T.accent, fontWeight: 600 }}>◉ orbit</span>
+            <span style={{ color: T.dim, display: desk }}> · </span>
+            <span style={{ display: desk }}>shop</span>
+            <span>{'  '}</span>
+            {TABS.map((label, i) => {
+              const on = tab === i + 1
+              return (
+                <span
+                  key={label}
+                  onClick={() => setTab(i + 1)}
+                  style={{
+                    cursor: 'pointer',
+                    background: on ? T.accent : 'transparent',
+                    color: on ? T.bg : T.muted,
+                    fontWeight: on ? 700 : 400,
+                  }}
+                >
+                  {mobile ? ` ${i + 1} ` : ` ${i + 1} ${label} `}
+                </span>
+              )
+            })}
+            <span style={{ flex: 1 }} />
+            <span style={{ color: T.green }}>
+              ● {counts.up}
+              <span style={{ display: desk }}> up</span>
+            </span>
+            {counts.busy > 0 && <span style={{ color: T.yellow }}>{`  ◐ ${counts.busy}`}</span>}
+            {counts.bad > 0 && <span style={{ color: T.red }}>{`  ✖ ${counts.bad}`}</span>}
+            <span style={{ color: T.dim, display: desk }}>{`  ○ ${rest} `}</span>
+          </div>
+
+          <div
+            ref={body}
+            style={{
+              height: bodyHeight,
+              position: 'relative',
+              display: 'flex',
+              flexDirection: mobile ? 'column' : 'row',
+              background: T.panel,
+              overflow: 'hidden',
+            }}
+          >
+            {showList && (
+              <ServiceList snap={snap} sel={sel} full={tab === 1} mobile={mobile} border={border} up={counts.up} onSelect={select} />
+            )}
+            <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+              {tab === 1 && <Detail snap={snap} sel={sel} />}
+              {tab === 2 && <Graph snap={snap} sel={sel} border={border} onSelect={select} />}
+              {tab === 4 && <GitView git={git} mobile={mobile} border={border} />}
+              {(tab === 1 || tab === 3) && (
+                <LogPane snap={snap} sel={sel} all={allLogs} hint={tab === 3} lines={tab === 1 ? 19 : 29} />
+              )}
+            </div>
+
+            {help && (
+              <div
                 style={{
-                  cursor: 'pointer',
-                  background: on ? T.accent : 'transparent',
-                  color: on ? T.bg : T.muted,
-                  fontWeight: on ? 700 : 400,
+                  position: 'absolute',
+                  inset: 0,
+                  margin: 'auto',
+                  width: 'min(520px,90%)',
+                  height: 'fit-content',
+                  background: T.alt,
+                  border: `1px solid ${T.accent}`,
+                  padding: '16px 18px',
+                  display: 'grid',
+                  gridTemplateColumns: '110px 1fr',
+                  gap: '2px 14px',
                 }}
               >
-                {mobile ? ` ${i + 1} ` : ` ${i + 1} ${label} `}
-              </span>
-            )
-          })}
-          <span style={{ flex: 1 }} />
-          <span style={{ color: T.green }}>
-            ● {counts.up}
-            <span style={{ display: desk }}> up</span>
-          </span>
-          {counts.busy > 0 && <span style={{ color: T.yellow }}>{`  ◐ ${counts.busy}`}</span>}
-          {counts.bad > 0 && <span style={{ color: T.red }}>{`  ✖ ${counts.bad}`}</span>}
-          <span style={{ color: T.dim, display: desk }}>{`  ○ ${rest} `}</span>
-        </div>
-
-        <div
-          ref={body}
-          style={{
-            height: bodyHeight,
-            position: 'relative',
-            display: 'flex',
-            flexDirection: mobile ? 'column' : 'row',
-            background: T.panel,
-            overflow: 'hidden',
-          }}
-        >
-          {showList && (
-            <ServiceList snap={snap} sel={sel} full={tab === 1} mobile={mobile} border={border} up={counts.up} onSelect={select} />
-          )}
-          <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            {tab === 1 && <Detail snap={snap} sel={sel} />}
-            {(tab === 1 || tab === 3) && (
-              <LogPane snap={snap} sel={sel} all={allLogs} hint={tab === 3} lines={tab === 1 ? 19 : 29} />
+                <span style={{ position: 'absolute', top: -10, left: 10, background: T.alt, color: T.accent, padding: '0 4px', lineHeight: '18px' }}>
+                  Help
+                </span>
+                {HELP.map(([k, d]) => (
+                  <HelpRow key={k} k={k} d={d} />
+                ))}
+              </div>
             )}
           </div>
 
-          {help && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                margin: 'auto',
-                width: 'min(520px,90%)',
-                height: 'fit-content',
-                background: T.alt,
-                border: `1px solid ${T.accent}`,
-                padding: '16px 18px',
-                display: 'grid',
-                gridTemplateColumns: '110px 1fr',
-                gap: '2px 14px',
-              }}
-            >
-              <span style={{ position: 'absolute', top: -10, left: 10, background: T.alt, color: T.accent, padding: '0 4px', lineHeight: '18px' }}>
-                Help
+          <div style={{ display: mobile ? 'none' : 'flex', padding: '1px 6px', background: T.alt, whiteSpace: 'pre', overflow: 'hidden', marginBottom: 6 }}>
+            {FOOTERS[tab].map(([k, d]) => (
+              <span key={k}>
+                <span style={{ color: T.accent }}>{k}</span>
+                <span style={{ color: T.muted }}>{` ${d}   `}</span>
               </span>
-              {HELP.map(([k, d]) => (
-                <HelpRow key={k} k={k} d={d} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div style={{ display: mobile ? 'none' : 'flex', padding: '1px 6px', background: T.alt, whiteSpace: 'pre', overflow: 'hidden', marginBottom: 6 }}>
-          {FOOTERS[tab].map(([k, d]) => (
-            <span key={k}>
-              <span style={{ color: T.accent }}>{k}</span>
-              <span style={{ color: T.muted }}>{` ${d}   `}</span>
-            </span>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+      {mobile && <Pad tab={tab} onTab={setTab} onKey={press} onCrash={onCrash} />}
+    </>
   )
 }
 

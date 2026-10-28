@@ -12,12 +12,15 @@ export default function Demo() {
   const { sim, snap } = useSimulation()
   const [sel, setSel] = useState(4)
   const id = SVCS[sel].id
+  const crash = () => {
+    if (sim.crash()) setSel(WORKER)
+  }
 
   const buttons = [
     { key: 'S', label: 'start all', run: sim.startAll },
     { key: 'X', label: 'stop all', run: sim.stopAll },
     { key: 'r', label: `restart ${id}`, run: () => sim.restart(id) },
-    { key: '⚡', label: 'crash worker', run: () => sim.crash() && setSel(WORKER) },
+    { key: '⚡', label: 'crash worker', run: crash },
   ]
 
   return (
@@ -57,7 +60,7 @@ export default function Demo() {
           ))}
         </div>
       </div>
-      <Terminal snap={snap} sim={sim} sel={sel} onSelect={setSel} />
+      <Terminal snap={snap} sim={sim} sel={sel} onSelect={setSel} onCrash={crash} />
     </section>
   )
 }
