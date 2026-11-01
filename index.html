@@ -44,6 +44,15 @@
       }
     </script>
 
+    <script>
+      document.documentElement.setAttribute('data-js', '')
+    </script>
+    <style>
+      [data-js] [data-prerender] {
+        display: none;
+      }
+    </style>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

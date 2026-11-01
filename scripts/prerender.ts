@@ -44,7 +44,7 @@ function page(template: string, { title, description, path }: Head, body: string
 }
 
 const wrap = (width: number, inner: string) =>
-  `<div style="max-width:${width}px;margin:0 auto;padding:40px 24px;line-height:1.7;color:#cbd5e1;font-family:'Geist',system-ui,sans-serif">${inner}</div>`
+  `<div data-prerender style="max-width:${width}px;margin:0 auto;padding:40px 24px;line-height:1.7;color:#cbd5e1;font-family:'Geist',system-ui,sans-serif">${inner}</div>`
 
 const topLinks = `<p><a href="/">orbit</a> · <a href="/docs/">Docs</a> · <a href="/plugins/">Plugins</a> · <a href="https://github.com/JGoterris/orbit">GitHub</a></p>`
 
