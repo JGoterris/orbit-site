@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useMobile } from '../lib/useMobile'
 import Terminal from './Terminal'
 import { SVCS } from './data'
@@ -9,7 +9,8 @@ const WORKER = SVCS.findIndex((s) => s.id === 'worker')
 
 export default function Demo() {
   const mobile = useMobile()
-  const { sim, snap } = useSimulation()
+  const terminal = useRef<HTMLDivElement>(null)
+  const { sim, snap } = useSimulation(terminal)
   const [sel, setSel] = useState(4)
   const id = SVCS[sel].id
   const crash = () => {
@@ -26,7 +27,7 @@ export default function Demo() {
   return (
     <section
       id="demo"
-      data-reveal="up"
+      data-reveal
       style={{ maxWidth: 1160, margin: '0 auto', padding: '24px 24px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
@@ -60,7 +61,9 @@ export default function Demo() {
           ))}
         </div>
       </div>
-      <Terminal snap={snap} sim={sim} sel={sel} onSelect={setSel} onCrash={crash} />
+      <div ref={terminal} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <Terminal snap={snap} sim={sim} sel={sel} onSelect={setSel} onCrash={crash} />
+      </div>
     </section>
   )
 }

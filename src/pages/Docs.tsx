@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { DOCNAV } from '../content'
 import { fetchDoc, scrollToAnchor, styleDoc } from '../lib/markdown'
-import { fx } from '../lib/motion'
 import { docUrl } from '../lib/router'
 import { docHead } from '../lib/seo'
 import { useHead } from '../lib/useHead'
 import { useMobile } from '../lib/useMobile'
+import { useSlider } from '../lib/useSlider'
 
 const mono = { fontFamily: "'Geist Mono', monospace" }
 
@@ -21,6 +21,7 @@ export default function Docs({ doc }: { doc: string }) {
   const content = useRef<HTMLDivElement>(null)
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [navOpen, setNavOpen] = useState(false)
+  const { container: aside, marker } = useSlider<HTMLElement>('[data-current="true"]', doc)
 
   useEffect(() => {
     let stale = false
@@ -41,7 +42,6 @@ export default function Docs({ doc }: { doc: string }) {
     el.innerHTML = html
     if (!html) return
     styleDoc(el, doc)
-    fx(el, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], 500)
   }, [html, doc])
 
   const onContentClick = (e: MouseEvent) => {
@@ -97,10 +97,11 @@ export default function Docs({ doc }: { doc: string }) {
         </button>
       )}
       <aside
+        ref={aside}
         onClick={() => setNavOpen(false)}
         style={{
           flex: mobile ? '1 1 100%' : '0 0 220px',
-          position: mobile ? 'static' : 'sticky',
+          position: mobile ? 'relative' : 'sticky',
           top: 96,
           display: asideOpen ? 'flex' : 'none',
           flexDirection: 'column',
@@ -108,11 +109,12 @@ export default function Docs({ doc }: { doc: string }) {
           fontSize: 14,
         }}
       >
+        <span ref={marker} className="slider" style={{ borderRadius: 6, background: '#151c28' }} />
         {DOCNAV.map((d) =>
           'section' in d ? (
             <div
               key={d.section}
-              style={{ ...mono, fontSize: 11, color: '#64748b', letterSpacing: '0.08em', padding: '16px 10px 6px' }}
+              style={{ position: 'relative', ...mono, fontSize: 11, color: '#64748b', letterSpacing: '0.08em', padding: '16px 10px 6px' }}
             >
               {d.section.toUpperCase()}
             </div>
@@ -121,12 +123,13 @@ export default function Docs({ doc }: { doc: string }) {
               key={d.path}
               className="doc-link"
               href={docUrl(d.path)}
+              data-current={doc === d.path}
               style={{
+                position: 'relative',
                 display: 'block',
                 padding: mobile ? '10px 12px' : '6px 10px',
                 borderRadius: 6,
                 color: doc === d.path ? '#e2e8f0' : '#94a3b8',
-                background: doc === d.path ? '#151c28' : 'transparent',
               }}
             >
               {d.label}

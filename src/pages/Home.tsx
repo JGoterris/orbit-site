@@ -1,5 +1,6 @@
-import { useState, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useState, type CSSProperties, type ReactNode } from 'react'
 import HeroLogo from '../components/HeroLogo'
+import { logoReady } from '../components/logoClock'
 import Demo from '../demo/Demo'
 import { FEATURES, INSTALL, type InstallTab } from '../content'
 import { useCopy } from '../lib/useCopy'
@@ -7,6 +8,7 @@ import { useMobile } from '../lib/useMobile'
 import { homeHead } from '../lib/seo'
 import { useHead } from '../lib/useHead'
 import { useReveal } from '../lib/useReveal'
+import { useSlider } from '../lib/useSlider'
 
 const mono: CSSProperties = { fontFamily: "'Geist Mono', monospace" }
 const prompt = <span style={{ color: '#64748b' }}>$ </span>
@@ -32,6 +34,9 @@ function Hero() {
   const mobile = useMobile()
   const { copied, copy } = useCopy()
   const [tab, setTab] = useState<InstallTab>('brew')
+  const { container: tabs, marker } = useSlider<HTMLDivElement>('[data-current="true"]', tab, true)
+  const [ready, setReady] = useState(logoReady)
+  const onLogoReady = useCallback(() => setReady(true), [])
 
   return (
     <section
@@ -56,14 +61,14 @@ function Hero() {
         }}
       >
         <div
-          data-reveal="up"
+          data-reveal
           style={{ ...mono, fontSize: 13, color: '#94a3b8', display: 'flex', gap: 10, alignItems: 'center' }}
         >
-          <span style={{ color: '#4ade80' }}>●</span>
+          <span style={{ color: ready ? '#4ade80' : '#e0af68', transition: 'color var(--fast) var(--ease)' }}>●</span>
           <span>single static binary · Go · MIT</span>
         </div>
         <h1
-          data-reveal="up"
+          data-reveal
           style={{
             margin: 0,
             fontSize: 'clamp(40px,6.4vw,76px)',
@@ -78,7 +83,7 @@ function Hero() {
           <span style={{ color: '#a78bfa' }}>orbit</span>.
         </h1>
         <p
-          data-reveal="up"
+          data-reveal
           style={{
             margin: 0,
             fontSize: mobile ? 17 : 19,
@@ -92,7 +97,7 @@ function Hero() {
           and graph, plugins, and a CLI your AI agents can drive.
         </p>
         <div
-          data-reveal="up"
+          data-reveal
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -105,7 +110,9 @@ function Hero() {
           }}
         >
           <div
+            ref={tabs}
             style={{
+              position: 'relative',
               display: 'flex',
               borderBottom: '1px solid #1e2836',
               overflowX: 'auto',
@@ -113,9 +120,11 @@ function Hero() {
               whiteSpace: 'nowrap',
             }}
           >
+            <span ref={marker} className="slider" style={{ height: 2, background: '#a78bfa' }} />
             {(Object.keys(INSTALL) as InstallTab[]).map((k) => (
               <button
                 key={k}
+                data-current={tab === k}
                 onClick={() => setTab(k)}
                 style={{
                   all: 'unset',
@@ -125,7 +134,7 @@ function Hero() {
                   ...mono,
                   fontSize: 12,
                   color: tab === k ? '#e2e8f0' : '#64748b',
-                  borderBottom: `2px solid ${tab === k ? '#a78bfa' : 'transparent'}`,
+                  transition: 'color var(--fast) var(--ease)',
                 }}
               >
                 {INSTALL[k].label}
@@ -160,7 +169,7 @@ function Hero() {
         </div>
       </div>
       <div
-        data-reveal="scale"
+        data-reveal
         style={{
           flex: '1 1 340px',
           maxWidth: mobile ? 230 : 540,
@@ -168,7 +177,7 @@ function Hero() {
           aspectRatio: '1',
         }}
       >
-        <HeroLogo />
+        <HeroLogo onReady={onLogoReady} />
       </div>
     </section>
   )
@@ -189,7 +198,7 @@ function Features() {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
-        <h2 data-reveal="up" style={h2}>
+        <h2 data-reveal style={h2}>
           Features
         </h2>
         <a href="/docs/features/" style={{ fontSize: 14 }}>
@@ -197,6 +206,7 @@ function Features() {
         </a>
       </div>
       <div
+        data-reveal-group
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))',
@@ -211,17 +221,14 @@ function Features() {
           <div
             key={f.n}
             className="feature-card"
-            data-reveal="fade"
-            style={{
-              padding: mobile ? '24px 22px' : 32,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-            }}
+            style={{ padding: mobile ? '24px 22px' : 32 }}
           >
-            <div style={{ ...mono, fontSize: 12, color: f.c }}>{f.n}</div>
-            <div style={{ fontSize: 19, fontWeight: 600, letterSpacing: '-0.01em' }}>{f.t}</div>
-            <div style={{ fontSize: 15, lineHeight: 1.6, color: '#94a3b8', textWrap: 'pretty' }}>{f.d}</div>
+            {/* only the content enters: the card has to stay, its background hides the grid behind it */}
+            <div data-reveal style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ ...mono, fontSize: 12, color: f.c }}>{f.n}</div>
+              <div style={{ fontSize: 19, fontWeight: 600, letterSpacing: '-0.01em' }}>{f.t}</div>
+              <div style={{ fontSize: 15, lineHeight: 1.6, color: '#94a3b8', textWrap: 'pretty' }}>{f.d}</div>
+            </div>
           </div>
         ))}
       </div>
@@ -263,7 +270,7 @@ function QuickStart() {
         flexWrap: 'wrap',
       }}
     >
-      <div data-reveal="left" style={{ flex: '1 1 320px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div data-reveal style={{ flex: '1 1 320px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <h2 style={h2}>Quick start</h2>
         <p style={{ margin: 0, color: '#94a3b8', fontSize: 16, lineHeight: 1.6, maxWidth: 420 }}>
           <Code>orbit init</Code> scans the project and writes an <Code>orbit.yaml</Code>. Your{' '}
@@ -285,7 +292,7 @@ function QuickStart() {
         </div>
       </div>
       <div
-        data-reveal="right"
+        data-reveal
         style={{ ...box, flex: '1 1 420px', padding: mobile ? 18 : 24, fontSize: mobile ? 13 : 14, lineHeight: 1.75 }}
       >
         {yaml.map(({ indent, line }, i) => (
@@ -322,7 +329,7 @@ function Agents() {
       }}
     >
       <div
-        data-reveal="left"
+        data-reveal
         style={{ flex: '1 1 320px', display: 'flex', flexDirection: 'column', gap: 16, paddingTop: mobile ? 32 : 56 }}
       >
         <h2 style={h2}>Built for agents too</h2>
@@ -335,7 +342,7 @@ function Agents() {
         </a>
       </div>
       <div
-        data-reveal="right"
+        data-reveal
         style={{
           ...box,
           flex: '1 1 420px',

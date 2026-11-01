@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify'
+import { reducedMotion } from './motion'
 import { renderDoc, renderMarkdown, resolveDocHref } from './render'
 import { joinPath } from './router'
 
@@ -106,5 +107,8 @@ const slug = (t: string) =>
 // In-page links have no href (the hash is the router), so scroll to the heading ourselves.
 export function scrollToAnchor(el: HTMLElement, id: string) {
   const target = [...el.querySelectorAll('h1,h2,h3')].find((h) => slug(h.textContent ?? '') === id)
-  if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' })
+  if (target) {
+    const top = target.getBoundingClientRect().top + window.scrollY - 90
+    window.scrollTo({ top, behavior: reducedMotion() ? 'auto' : 'smooth' })
+  }
 }

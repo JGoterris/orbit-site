@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { REPO, useRepoInfo } from '../lib/github'
 import { useMobile } from '../lib/useMobile'
+import { useSlider } from '../lib/useSlider'
 import type { Route } from '../lib/router'
 import NavLogo from './NavLogo'
 
@@ -15,7 +16,6 @@ const maskBorder: CSSProperties = {
   inset: 0,
   borderRadius: 18,
   padding: 1,
-  overflow: 'hidden',
   pointerEvents: 'none',
   WebkitMask: 'linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)',
   WebkitMaskComposite: 'xor',
@@ -23,21 +23,10 @@ const maskBorder: CSSProperties = {
   background: '#ffffff14',
 }
 
-const glow: CSSProperties = {
-  position: 'absolute',
-  left: '50%',
-  top: '50%',
-  width: 1200,
-  height: 1200,
-  background:
-    'conic-gradient(from 0deg,#22d3ee00 0deg,#22d3ee 40deg,#a78bfa 90deg,#a78bfa00 140deg,#a78bfa00 200deg,#4ade80aa 240deg,#22d3ee00 290deg)',
-  animation: 'orbitSpin 8s linear infinite',
-  transform: 'translate(-50%,-50%)',
-}
-
 export default function Header({ route }: { route: Route }) {
   const mobile = useMobile()
   const { version, stars } = useRepoInfo()
+  const { container, marker } = useSlider<HTMLElement>('[data-active="true"]', route.view)
   const desk = mobile ? 'none' : 'inline'
 
   return (
@@ -61,9 +50,7 @@ export default function Header({ route }: { route: Route }) {
           boxShadow: '0 20px 60px -24px #a78bfa66',
         }}
       >
-        <div style={maskBorder}>
-          <div style={glow} />
-        </div>
+        <div style={maskBorder} />
         <div
           style={{
             position: 'relative',
@@ -99,7 +86,9 @@ export default function Header({ route }: { route: Route }) {
             </span>
           </a>
           <nav
+            ref={container}
             style={{
+              position: 'relative',
               display: 'flex',
               gap: mobile ? 4 : 8,
               flex: '1 1 auto',
@@ -114,6 +103,15 @@ export default function Header({ route }: { route: Route }) {
               boxShadow: 'inset 0 1px 0 #ffffff0a',
             }}
           >
+            <span
+              ref={marker}
+              className="slider"
+              style={{
+                borderRadius: 8,
+                background: 'linear-gradient(135deg,#22d3ee,#a78bfa)',
+                boxShadow: '0 6px 20px -6px #a78bfaaa',
+              }}
+            />
             {ITEMS.map((n) => {
               const active = route.view === n.view
               return (
@@ -123,17 +121,15 @@ export default function Header({ route }: { route: Route }) {
                   href={n.href}
                   data-active={active}
                   style={{
+                    position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flex: mobile ? '1' : '0 0 auto',
                     gap: 8,
                     padding: mobile ? '10px 8px' : '7px 16px',
-                    transition: 'color .2s',
                     borderRadius: 8,
-                    background: active ? 'linear-gradient(135deg,#22d3ee,#a78bfa)' : 'transparent',
                     color: active ? '#0b0f17' : '#94a3b8',
-                    boxShadow: active ? '0 6px 20px -6px #a78bfaaa' : 'none',
                   }}
                 >
                   <span

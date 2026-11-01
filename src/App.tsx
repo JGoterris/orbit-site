@@ -32,29 +32,13 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    // moving between docs only swaps the article, which animates itself; the sidebar stays put
+    // moving between docs only swaps the article, instantly; the sidebar stays put
     const key = route.view === 'docs' ? 'docs' : JSON.stringify(route)
     const prev = pageKey.current
     const first = prev === null
     pageKey.current = key
     if (first || key === prev) return
-    fx(
-      document.querySelector('[data-page]'),
-      [
-        { opacity: 0, transform: 'translateY(18px)', filter: 'blur(6px)' },
-        { opacity: 1, transform: 'none', filter: 'blur(0)' },
-      ],
-      550,
-    )
-    fx(
-      document.querySelector('[data-active="true"]'),
-      [
-        { transform: 'scale(.82)', filter: 'brightness(1.6)' },
-        { transform: 'scale(1.06)' },
-        { transform: 'scale(1)', filter: 'brightness(1)' },
-      ],
-      450,
-    )
+    fx(document.querySelector('[data-page]'), [{ opacity: 0 }, { opacity: 1 }], 120)
   }, [route])
 
   return (

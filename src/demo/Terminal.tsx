@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { fx } from '../lib/motion'
+import { useRef, useState, type KeyboardEvent } from 'react'
 import { useMobile } from '../lib/useMobile'
 import Detail from './Detail'
 import Graph from './Graph'
@@ -43,27 +42,11 @@ interface Props {
 export default function Terminal({ snap, sim, sel, onSelect, onCrash }: Props) {
   const mobile = useMobile()
   const root = useRef<HTMLDivElement>(null)
-  const body = useRef<HTMLDivElement>(null)
-  const lastTab = useRef<number | null>(null)
   const [tab, setTab] = useState(1)
   const [allLogs, setAllLogs] = useState(false)
   const [help, setHelp] = useState(false)
   const [focused, setFocused] = useState(false)
   const git = useGit()
-
-  useEffect(() => {
-    if (lastTab.current !== null) {
-      fx(
-        body.current,
-        [
-          { opacity: 0, transform: 'translateX(-10px)' },
-          { opacity: 1, transform: 'none' },
-        ],
-        260,
-      )
-    }
-    lastTab.current = tab
-  }, [tab])
 
   const counts = { up: 0, busy: 0, bad: 0 }
   for (const x of SVCS) {
@@ -186,7 +169,6 @@ export default function Terminal({ snap, sim, sel, onSelect, onCrash }: Props) {
           </div>
 
           <div
-            ref={body}
             style={{
               height: bodyHeight,
               position: 'relative',

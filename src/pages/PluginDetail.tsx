@@ -92,7 +92,7 @@ export default function PluginDetail({ full }: { full: string }) {
       ) : (
         <div style={{ display: 'flex', gap: mobile ? 20 : 48, flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <article
-            data-reveal="up"
+            data-reveal
             style={{ flex: '1 1 560px', order: 2, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 12 }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -113,7 +113,7 @@ export default function PluginDetail({ full }: { full: string }) {
           </article>
 
           <aside
-            data-reveal="right"
+            data-reveal
             style={{
               flex: mobile ? '1 1 100%' : '0 1 320px',
               minWidth: 0,

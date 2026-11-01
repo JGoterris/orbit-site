@@ -120,12 +120,17 @@ export default function Plugins() {
 
       <div style={{ ...mono, fontSize: 12, color: found?.error && !loading ? '#facc15' : '#64748b' }}>{status}</div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,340px),1fr))', gap: 14 }}>
+      <div
+        className="plugin-grid"
+        data-loading={loading}
+        data-reveal-group
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,340px),1fr))', gap: 14 }}
+      >
         {items.map((p) => (
           <div
             key={p.full}
             className="plugin-card"
-            data-reveal="up"
+            data-reveal
             onClick={() => navigate(`/plugins/${p.full}/`)}
             style={{
               cursor: 'pointer',
