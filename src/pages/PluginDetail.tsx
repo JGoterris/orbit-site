@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import Pill from '../components/Pill'
-import { CURATED } from '../content'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { ArticleSkeleton } from '../components/Skeleton'
 import { fetchPlugin, pluginName, type PluginDetail as Detail } from '../lib/github'
 import { renderUntrusted, styleRepo } from '../lib/markdown'
 import { useCopy } from '../lib/useCopy'
@@ -45,16 +44,14 @@ export default function PluginDetail({ full }: { full: string }) {
   const p = loaded?.full === full ? loaded.plugin : null
   const html = p ? loaded!.html : ''
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = readme.current
     if (!el) return
     el.innerHTML = html
     if (html && p) styleRepo(el, full, p.branch)
   }, [html, p, full])
 
-  const curated = CURATED.find((c) => c.full.toLowerCase() === full.toLowerCase())
-  const desc = p?.desc || curated?.desc || ''
-  const stage = p?.stage || curated?.stage
+  const desc = p?.desc ?? ''
   useHead({
     title: `${pluginName(full)} · orbit plugin`,
     description: desc || `The ${pluginName(full)} plugin for orbit.`,
@@ -99,17 +96,23 @@ export default function PluginDetail({ full }: { full: string }) {
               <h1 style={{ margin: 0, ...mono, fontSize: 'clamp(32px,4.5vw,48px)', letterSpacing: '-0.03em', fontWeight: 600 }}>
                 {pluginName(full)}
               </h1>
-              {curated && <Pill color="#4ade80">curated</Pill>}
-              {stage && <Pill color="#facc15">{stage}</Pill>}
             </div>
             <div style={{ ...mono, fontSize: 13, color: '#64748b' }}>{full}</div>
-            <p style={{ margin: '0 0 12px', fontSize: 17, lineHeight: 1.6, color: '#94a3b8', textWrap: 'pretty' }}>{desc}</p>
+            <p key={desc} className="fade-in" style={{ margin: '0 0 12px', fontSize: 17, lineHeight: 1.6, color: '#94a3b8', textWrap: 'pretty' }}>
+              {desc}
+            </p>
             <div style={{ ...label, paddingBottom: 8, borderBottom: '1px solid #1a2230' }}>README</div>
-            {loading && <div style={{ ...mono, color: '#94a3b8', padding: '32px 0' }}>◐ loading README…</div>}
             {p && p.readme == null && (
-              <div style={{ ...mono, color: '#f87171', padding: '32px 0' }}>✖ No README found for {full}.</div>
+              <div className="fade-in" style={{ ...mono, color: '#f87171', padding: '32px 0' }}>
+                ✖ {p.readmeFailed ? 'Could not load the README from GitHub. Try again in a minute.' : `No README found for ${full}.`}
+              </div>
             )}
-            <div ref={readme} style={{ fontSize: 16, lineHeight: 1.7, color: '#cbd5e1' }} />
+            <div className="swap" data-loading={loading}>
+              <div className="swap-hint" aria-hidden>
+                <ArticleSkeleton title={false} />
+              </div>
+              <div ref={readme} className="swap-content" style={{ fontSize: 16, lineHeight: 1.7, color: '#cbd5e1' }} />
+            </div>
           </article>
 
           <aside
@@ -157,7 +160,9 @@ export default function PluginDetail({ full }: { full: string }) {
                   style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '9px 0', borderBottom: '1px solid #1a2230' }}
                 >
                   <span style={{ color: '#64748b' }}>{k}</span>
-                  <span style={{ ...mono, color: '#e2e8f0' }}>{v}</span>
+                  <span key={v} className="fade-in" style={{ ...mono, color: '#e2e8f0' }}>
+                    {v}
+                  </span>
                 </div>
               ))}
             </div>

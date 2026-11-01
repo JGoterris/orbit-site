@@ -1,4 +1,5 @@
-/* All the motion of the site: colour and opacity use --fast, markers that slide use --move. */
+/* All the motion of the site: colour and opacity use --fast, markers that slide and content that
+   fades in or resizes use --move. */
 :root {
   --fast: 120ms;
   --move: 240ms;
@@ -168,12 +169,78 @@ a:hover {
   border-color: #a78bfa !important;
 }
 
-.plugin-grid {
+.auto-height {
+  overflow: hidden;
+  transition: height var(--move) var(--ease);
+}
+
+/* Content that arrives later: what is there fades out, a skeleton shows up only if the wait gets
+   long, and the new content fades in over it. */
+.swap {
+  position: relative;
+}
+
+.swap-content {
+  transition: opacity var(--move) var(--ease);
+}
+
+.swap[data-loading='true'] .swap-content {
+  opacity: 0;
+  transition-duration: var(--fast);
+}
+
+.swap-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity var(--fast) var(--ease);
 }
 
-.plugin-grid[data-loading='true'] {
-  opacity: 0;
+.swap[data-loading='true'] .swap-hint,
+.swap-hint[data-loading='true'] {
+  opacity: 1;
+  transition-delay: 300ms;
+}
+
+.skeleton-bar {
+  background: #1a2230;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* The results and their skeletons share a cell; the skeletons only take up room when there are no
+   previous results holding it. */
+.plugin-results {
+  position: relative;
+  display: grid;
+}
+
+.plugin-results > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.plugin-skeletons[data-reserve='true'] {
+  position: static;
+  align-self: start;
+}
+
+.fade-in {
+  animation: fade-in var(--move) var(--ease);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .plugin-card {
@@ -189,5 +256,7 @@ a:hover {
   *::before,
   *::after {
     transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    animation-duration: 0s !important;
   }
 }

@@ -32,7 +32,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    // moving between docs only swaps the article, instantly; the sidebar stays put
+    // moving between docs only swaps the article (Docs fades it); the sidebar stays put
     const key = route.view === 'docs' ? 'docs' : JSON.stringify(route)
     const prev = pageKey.current
     const first = prev === null

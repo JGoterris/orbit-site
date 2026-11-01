@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
+import { ArticleSkeleton } from '../components/Skeleton'
 import { DOCNAV } from '../content'
 import { fetchDoc, scrollToAnchor, styleDoc } from '../lib/markdown'
+import { fadedOut } from '../lib/motion'
 import { docUrl } from '../lib/router'
 import { docHead } from '../lib/seo'
 import { useHead } from '../lib/useHead'
@@ -25,24 +27,26 @@ export default function Docs({ doc }: { doc: string }) {
 
   useEffect(() => {
     let stale = false
-    fetchDoc(doc)
-      .then((html) => !stale && setLoaded({ doc, html, error: null }))
-      .catch((e: Error) => !stale && setLoaded({ doc, html: '', error: e.message }))
+    const next = fetchDoc(doc).then(
+      (html) => ({ doc, html, error: null }),
+      (e: Error) => ({ doc, html: '', error: e.message }),
+    )
+    // the previous page stays, fading out, until this one is here
+    Promise.all([next, fadedOut()]).then(([l]) => !stale && setLoaded(l))
     return () => {
       stale = true
     }
   }, [doc])
 
   const loading = loaded?.doc !== doc
-  const html = loading ? '' : loaded.html
 
-  useEffect(() => {
+  // before paint, or the previous page would flash as the fade back in starts
+  useLayoutEffect(() => {
     const el = content.current
-    if (!el) return
-    el.innerHTML = html
-    if (!html) return
-    styleDoc(el, doc)
-  }, [html, doc])
+    if (!el || !loaded) return
+    el.innerHTML = loaded.html
+    if (loaded.html) styleDoc(el, loaded.doc)
+  }, [loaded])
 
   const onContentClick = (e: MouseEvent) => {
     const a = (e.target as HTMLElement).closest<HTMLElement>('a[data-anchor]')
@@ -141,9 +145,18 @@ export default function Docs({ doc }: { doc: string }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, ...mono, fontSize: 12, color: '#64748b' }}>
           <span>docs/{doc}</span>
         </div>
-        {loading && <div style={{ ...mono, color: '#94a3b8', padding: '40px 0' }}>◐ loading…</div>}
         {loaded?.error && !loading && <div style={{ ...mono, color: '#f87171', padding: '40px 0' }}>✖ {loaded.error}</div>}
-        <div ref={content} onClick={onContentClick} style={{ fontSize: 16, lineHeight: 1.7, color: '#cbd5e1' }} />
+        <div className="swap" data-loading={loading}>
+          <div className="swap-hint" aria-hidden>
+            <ArticleSkeleton />
+          </div>
+          <div
+            ref={content}
+            className="swap-content"
+            onClick={onContentClick}
+            style={{ fontSize: 16, lineHeight: 1.7, color: '#cbd5e1' }}
+          />
+        </div>
       </article>
     </main>
   )

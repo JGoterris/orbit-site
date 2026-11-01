@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { fx, reducedMotion } from './motion'
 
 const VISIBLE_AREA = 0.94
@@ -10,13 +10,15 @@ const visited = new Set<string>()
 // The one entrance of the site: [data-reveal] elements rise and fade in as they scroll into view.
 // What is already on screen when the page opens is just there, a page only plays it on its first
 // visit, and what you jump past is shown without making you wait for it. Runs after every render so
-// elements that appear later (fetched cards) are picked up too.
+// elements that appear later (fetched cards) are picked up too, and those rise in even if on screen.
+// Layout effects, so nothing is painted for a frame before it gets hidden.
 export function useReveal() {
   const io = useRef<IntersectionObserver>(undefined)
   const seen = useRef(new WeakSet<Element>())
   const skip = useRef<boolean>(undefined)
+  const opened = useRef(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const batches = new Map<Element | null, number>()
@@ -48,7 +50,7 @@ export function useReveal() {
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (skip.current === undefined) {
       skip.current = visited.has(location.pathname) || reducedMotion()
       visited.add(location.pathname)
@@ -60,12 +62,13 @@ export function useReveal() {
         io.current?.observe(el)
         return
       }
-      if (el.getBoundingClientRect().top < innerHeight * VISIBLE_AREA) {
+      if (!opened.current && el.getBoundingClientRect().top < innerHeight * VISIBLE_AREA) {
         seen.current.add(el)
         return
       }
       el.setAttribute('data-pending', '')
       io.current?.observe(el)
     })
+    opened.current = true
   })
 }

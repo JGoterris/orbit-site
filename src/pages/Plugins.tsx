@@ -1,7 +1,9 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import Pill from '../components/Pill'
+import { PluginCardSkeleton } from '../components/Skeleton'
+import { fadedOut } from '../lib/motion'
 import { navigate } from '../lib/router'
-import { pluginName, searchPlugins, type PluginSearch, type Sort } from '../lib/github'
+import { cachedSearch, pluginName, searchPlugins, type PluginSearch, type Sort } from '../lib/github'
+import { useAutoHeight } from '../lib/useAutoHeight'
 import { useCopy } from '../lib/useCopy'
 import { pluginsHead } from '../lib/seo'
 import { useHead } from '../lib/useHead'
@@ -15,6 +17,11 @@ const SORTS: [Sort, string][] = [
   ['updated', 'updated'],
 ]
 
+const GRID: CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,340px),1fr))', gap: 14 }
+
+// enough to fill the first row on a desktop, where there are three columns
+const SKELETONS = 3
+
 const monthYear = new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric' })
 
 export default function Plugins() {
@@ -26,7 +33,12 @@ export default function Plugins() {
   const [query, setQuery] = useState('')
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<Sort>('stars')
-  const [found, setFound] = useState<(PluginSearch & { key: string }) | null>(null)
+  // key null: nothing searched yet
+  const [found, setFound] = useState<PluginSearch & { key: string | null }>(() => {
+    const cached = cachedSearch('', 'stars')
+    return cached ? { ...cached, key: '|stars' } : { items: [], error: null, key: null }
+  })
+  const { outer, inner } = useAutoHeight()
 
   useEffect(() => {
     const t = setTimeout(() => setQ(query.trim()), 450)
@@ -36,14 +48,15 @@ export default function Plugins() {
   const key = `${q}|${sort}`
   useEffect(() => {
     let stale = false
-    searchPlugins(q, sort).then((r) => !stale && setFound({ ...r, key }))
+    // the previous results stay, fading out, until these are here
+    Promise.all([searchPlugins(q, sort), fadedOut()]).then(([r]) => !stale && setFound({ ...r, key }))
     return () => {
       stale = true
     }
   }, [q, sort, key])
 
-  const loading = found?.key !== key
-  const items = found?.items ?? []
+  const loading = found.key !== key
+  const items = found.items
   const status = loading
     ? '◐ searching GitHub…'
     : found.error
@@ -118,71 +131,83 @@ export default function Plugins() {
         </div>
       </div>
 
-      <div style={{ ...mono, fontSize: 12, color: found?.error && !loading ? '#facc15' : '#64748b' }}>{status}</div>
+      <div key={status} className="fade-in" style={{ ...mono, fontSize: 12, color: found.error && !loading ? '#facc15' : '#64748b' }}>
+        {status}
+      </div>
 
-      <div
-        className="plugin-grid"
-        data-loading={loading}
-        data-reveal-group
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,340px),1fr))', gap: 14 }}
-      >
-        {items.map((p) => (
-          <div
-            key={p.full}
-            className="plugin-card"
-            data-reveal
-            onClick={() => navigate(`/plugins/${p.full}/`)}
-            style={{
-              cursor: 'pointer',
-              border: '1px solid #1e2836',
-              borderRadius: 12,
-              background: '#0e131d',
-              padding: 20,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ ...mono, fontSize: 17, fontWeight: 600, color: '#e2e8f0' }}>{pluginName(p.full)}</span>
-              {p.curated && <Pill color="#4ade80">curated</Pill>}
-              {p.stage && <Pill color="#facc15">{p.stage}</Pill>}
-              {p.stars != null && (
-                <span style={{ marginLeft: 'auto', ...mono, fontSize: 12, color: '#94a3b8' }}>
-                  ★ {p.stars}
-                  {p.updated && ` · ${monthYear.format(new Date(p.updated))}`}
-                </span>
-              )}
-            </div>
-            <div style={{ ...mono, fontSize: 12, color: '#64748b' }}>{p.full}</div>
-            <div style={{ fontSize: 15, lineHeight: 1.55, color: '#cbd5e1', flex: 1, textWrap: 'pretty' }}>{p.desc}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderTop: '1px solid #1a2230', paddingTop: 12 }}>
-              <code
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  ...mono,
-                  fontSize: 12,
-                  color: '#94a3b8',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                orbit plugin install {p.full}
-              </code>
-              <button
-                className="copy-btn"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  copy(`orbit plugin install ${p.full}`, `p:${p.full}`)
-                }}
-              >
-                {copied === `p:${p.full}` ? '✔' : 'copy'}
-              </button>
+      <div ref={outer} className="auto-height">
+        <div ref={inner} className="plugin-results">
+          <div className="swap" data-loading={loading}>
+            <div className="swap-content" data-reveal-group style={GRID}>
+              {items.map((p) => (
+                <div
+                  key={p.full}
+                  className="plugin-card"
+                  data-reveal
+                  onClick={() => navigate(`/plugins/${p.full}/`)}
+                  style={{
+                    cursor: 'pointer',
+                    border: '1px solid #1e2836',
+                    borderRadius: 12,
+                    background: '#0e131d',
+                    padding: 20,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <span style={{ ...mono, fontSize: 17, fontWeight: 600, color: '#e2e8f0' }}>{pluginName(p.full)}</span>
+                    {p.stars != null && (
+                      <span style={{ marginLeft: 'auto', ...mono, fontSize: 12, color: '#94a3b8' }}>
+                        ★ {p.stars}
+                        {p.updated && ` · ${monthYear.format(new Date(p.updated))}`}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ ...mono, fontSize: 12, color: '#64748b' }}>{p.full}</div>
+                  <div style={{ fontSize: 15, lineHeight: 1.55, color: '#cbd5e1', flex: 1, textWrap: 'pretty' }}>{p.desc}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderTop: '1px solid #1a2230', paddingTop: 12 }}>
+                    <code
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        ...mono,
+                        fontSize: 12,
+                        color: '#94a3b8',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      orbit plugin install {p.full}
+                    </code>
+                    <button
+                      className="copy-btn"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        copy(`orbit plugin install ${p.full}`, `p:${p.full}`)
+                      }}
+                    >
+                      {copied === `p:${p.full}` ? '✔' : 'copy'}
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
+          <div
+            className="swap-hint plugin-skeletons"
+            data-loading={loading}
+            data-reserve={loading && !items.length}
+            aria-hidden
+            style={GRID}
+          >
+            {Array.from({ length: SKELETONS }, (_, i) => (
+              <PluginCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </div>
 
       <div

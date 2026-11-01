@@ -72,11 +72,3 @@ export const DOCNAV: DocNavItem[] = [
   { label: 'Platforms', path: 'platforms.md', desc: 'How orbit differs on Linux, macOS and Windows.' },
   { label: 'Upgrading from 0.x', path: 'upgrading.md', desc: 'Moving from the TypeScript version (0.x) of orbit to the Go one.' },
 ]
-
-export const CURATED = [
-  {
-    full: 'JGoterris/orbit-forge',
-    desc: 'Merge requests and CI of GitHub and GitLab, with gh and glab: tabs, badges on the services and actions.',
-    stage: 'alpha',
-  },
-]

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { CURATED } from '../content'
 
 export const REPO = 'JGoterris/orbit'
 
@@ -34,8 +33,6 @@ export interface Plugin {
   stars?: number
   updated?: string
   url: string
-  curated?: boolean
-  stage?: string
 }
 
 export const pluginName = (full: string) => full.split('/')[1].replace(/^orbit-/, '')
@@ -57,6 +54,8 @@ interface SearchItem {
 
 const searches = new Map<string, PluginSearch>()
 
+export const cachedSearch = (q: string, sort: Sort) => searches.get(`${q}|${sort}`)
+
 // Anonymous GitHub search is limited to a handful of requests a minute, so keep what we got.
 export async function searchPlugins(q: string, sort: Sort): Promise<PluginSearch> {
   const key = `${q}|${sort}`
@@ -71,8 +70,8 @@ export async function searchPlugins(q: string, sort: Sort): Promise<PluginSearch
     if (!r.ok) {
       throw new Error(
         r.status === 403
-          ? 'GitHub rate limit reached, showing the curated list. Try again in a minute.'
-          : `GitHub search failed (${r.status}), showing the curated list.`,
+          ? 'GitHub rate limit reached. Try again in a minute.'
+          : `GitHub search failed (${r.status}).`,
       )
     }
     const j = (await r.json()) as { items: SearchItem[] }
@@ -84,20 +83,8 @@ export async function searchPlugins(q: string, sort: Sort): Promise<PluginSearch
       url: x.html_url,
     }))
   } catch (e) {
-    error = e instanceof TypeError ? 'Network error, showing the curated list.' : (e as Error).message
+    error = e instanceof TypeError ? 'Network error, could not reach GitHub.' : (e as Error).message
   }
-
-  const ql = q.toLowerCase()
-  for (const c of CURATED) {
-    const existing = items.find((i) => i.full.toLowerCase() === c.full.toLowerCase())
-    if (existing) {
-      existing.curated = true
-      existing.stage = c.stage
-    } else if (!ql || `${c.full} ${c.desc}`.toLowerCase().includes(ql)) {
-      items.push({ ...c, curated: true, url: `https://github.com/${c.full}` })
-    }
-  }
-  items.sort((a, b) => Number(!!b.curated) - Number(!!a.curated))
 
   const result = { items, error }
   if (!error) searches.set(key, result)
@@ -109,20 +96,21 @@ export interface PluginDetail extends Plugin {
   license?: string | null
   branch: string
   readme: string | null
+  // no readme, but only because GitHub could not tell us: rate limit, network, an outage
+  readmeFailed: boolean
 }
 
 async function getText(url: string, headers?: HeadersInit) {
   try {
     const r = await fetch(url, { headers })
-    return r.ok ? await r.text() : null
+    return { text: r.ok ? await r.text() : null, notFound: r.status === 404 }
   } catch {
-    return null
+    return { text: null, notFound: false }
   }
 }
 
 export async function fetchPlugin(full: string): Promise<PluginDetail> {
-  const base = CURATED.find((c) => c.full.toLowerCase() === full.toLowerCase())
-  const plugin: PluginDetail = { full, desc: base?.desc ?? '', stage: base?.stage, url: `https://github.com/${full}`, branch: 'HEAD', readme: null }
+  const plugin: PluginDetail = { full, desc: '', url: `https://github.com/${full}`, branch: 'HEAD', readme: null, readmeFailed: false }
 
   const info = await getJSON<{
     description: string | null
@@ -134,7 +122,7 @@ export async function fetchPlugin(full: string): Promise<PluginDetail> {
     default_branch: string
   }>(`https://api.github.com/repos/${full}`)
   if (info) {
-    plugin.desc = info.description || plugin.desc
+    plugin.desc = info.description ?? ''
     plugin.stars = info.stargazers_count
     plugin.updated = info.pushed_at
     plugin.license = info.license?.spdx_id
@@ -143,15 +131,18 @@ export async function fetchPlugin(full: string): Promise<PluginDetail> {
     plugin.branch = info.default_branch
   }
 
-  plugin.readme = await getText(`https://api.github.com/repos/${full}/readme`, { Accept: 'application/vnd.github.raw' })
+  const api = await getText(`https://api.github.com/repos/${full}/readme`, { Accept: 'application/vnd.github.raw' })
+  plugin.readme = api.text
   if (plugin.readme == null) {
     for (const b of ['main', 'master']) {
-      plugin.readme = await getText(`https://raw.githubusercontent.com/${full}/${b}/README.md`)
+      plugin.readme = (await getText(`https://raw.githubusercontent.com/${full}/${b}/README.md`)).text
       if (plugin.readme != null) {
         if (!info) plugin.branch = b
         break
       }
     }
   }
+  // only the API knows the default branch and any README name, so only its 404 means there is none
+  plugin.readmeFailed = plugin.readme == null && !api.notFound
   return plugin
 }
