@@ -43,7 +43,7 @@ function Hero() {
       style={{
         maxWidth: 1160,
         margin: '0 auto',
-        padding: mobile ? '36px 20px 24px' : '88px 24px 40px',
+        padding: mobile ? '20px 20px 24px' : '48px 24px 40px',
         display: 'flex',
         alignItems: 'center',
         gap: mobile ? 8 : 40,
