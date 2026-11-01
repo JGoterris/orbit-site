@@ -1,6 +1,6 @@
 export const SITE_URL = 'https://orbit.jgoterris.com'
 
-export const SITE_TITLE = 'orbit · TUI to launch and monitor local services'
+export const SITE_TITLE = 'orbit · Manage your local dev stack from the terminal'
 
 export const SITE_DESCRIPTION =
-  'A TUI to launch, control and monitor local services (processes, Docker and compose) respecting their dependencies. A single Go binary.'
+  'The local dev stack manager for your terminal. Dependency-aware startup, background supervision, live logs and graph, plugins, and a CLI your AI agents can drive.'

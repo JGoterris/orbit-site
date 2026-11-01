@@ -88,9 +88,8 @@ function Hero() {
             textWrap: 'pretty',
           }}
         >
-          TUI to launch, control and monitor local services —processes (backends, frontends, workers), Docker
-          containers and <code style={{ ...mono, color: '#e2e8f0', fontSize: 16 }}>docker compose</code> services—
-          respecting their dependencies.
+          The local dev stack manager for your terminal. Dependency-aware startup, background supervision, live logs
+          and graph, plugins, and a CLI your AI agents can drive.
         </p>
         <div
           data-reveal="up"

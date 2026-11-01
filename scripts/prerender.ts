@@ -54,7 +54,7 @@ function homeBody() {
     1160,
     `${topLinks}
 <h1>Every local service, in orbit.</h1>
-<p>TUI to launch, control and monitor local services — processes (backends, frontends, workers), Docker containers and docker compose services — respecting their dependencies.</p>
+<p>The local dev stack manager for your terminal. Dependency-aware startup, background supervision, live logs and graph, plugins, and a CLI your AI agents can drive.</p>
 <h2>Features</h2>
 <ul>${features}</ul>`,
   )
